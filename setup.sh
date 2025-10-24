@@ -104,7 +104,7 @@ permission() {
 	if [[ -d "$CURR_DIR/distro" ]] && [[ -e "$CURR_DIR/distro/user.sh" ]]; then
 		cp -f "$CURR_DIR/distro/user.sh" "$UBUNTU_DIR/root/user.sh"
 	else
-		downloader "$CURR_DIR/user.sh" "https://raw.githubusercontent.com/modded-ubuntu/modded-ubuntu/master/distro/user.sh"
+		downloader "$CURR_DIR/user.sh" "https://raw.githubusercontent.com/MaheshTechnicals/modded-ubuntu/refs/heads/mt/distro/user.sh"
 		mv -f "$CURR_DIR/user.sh" "$UBUNTU_DIR/root/user.sh"
 	fi
 	chmod +x $UBUNTU_DIR/root/user.sh
