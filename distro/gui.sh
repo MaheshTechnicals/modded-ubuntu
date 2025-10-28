@@ -15,6 +15,21 @@ check_root(){
 	fi
 }
 
+# 🧩 Fix D-Bus machine-id to prevent VNC startup error
+fix_machineid() {
+    echo -e "${C}Checking D-Bus machine-id...${W}"
+    if [ ! -s /etc/machine-id ]; then
+        echo -e "${Y}Machine-id missing or empty. Generating new one...${W}"
+        rm -f /var/lib/dbus/machine-id /etc/machine-id
+        dbus-uuidgen --ensure=/etc/machine-id
+        dbus-uuidgen --ensure
+        ln -sf /etc/machine-id /var/lib/dbus/machine-id
+        echo -e "${G}Machine-id successfully created.${W}"
+    else
+        echo -e "${G}Machine-id already exists.${W}"
+    fi
+}
+
 banner() {
 	clear
 	cat <<- EOF
@@ -281,10 +296,10 @@ config() {
 }
 
 # ----------------------------
-
+# 🛠️ Main Execution Flow
 check_root
+fix_machineid
 package
 install_softwares
 config
 note
-
