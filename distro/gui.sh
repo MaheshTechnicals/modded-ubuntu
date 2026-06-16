@@ -893,7 +893,6 @@ config() {
     cd "$temp_folder" || exit 1
 
     echo -e "${R} [${W}-${R}]${C} Downloading Required Files..\n${W}"
-    downloader "fonts.tar.gz"           "https://github.com/MaheshTechnicals/modded-ubuntu/releases/download/config/fonts.tar.gz"
     downloader "icons.tar.gz"           "https://github.com/MaheshTechnicals/modded-ubuntu/releases/download/config/icons.tar.gz"
     downloader "wallpaper.tar.gz"       "https://github.com/MaheshTechnicals/modded-ubuntu/releases/download/config/wallpaper.tar.gz"
     downloader "gtk-themes.tar.gz"      "https://github.com/MaheshTechnicals/modded-ubuntu/releases/download/config/gtk-themes.tar.gz"
@@ -907,7 +906,6 @@ config() {
     mkdir -p "/usr/share/backgrounds/xfce/"
     mkdir -p "/usr/share/themes/"
 
-    tar -xvzf fonts.tar.gz           -C "/usr/local/share/fonts/"      >>"$LOG_FILE" 2>&1
     tar -xvzf icons.tar.gz           -C "/usr/share/icons/"            >>"$LOG_FILE" 2>&1
     tar -xvzf wallpaper.tar.gz       -C "/usr/share/backgrounds/xfce/" >>"$LOG_FILE" 2>&1
     tar -xvzf gtk-themes.tar.gz      -C "/usr/share/themes/"           >>"$LOG_FILE" 2>&1
