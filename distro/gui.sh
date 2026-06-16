@@ -563,12 +563,14 @@ setup_zsh() {
 #  Optimized for proot/Android — target < 200ms startup
 # ─────────────────────────────────────────────────────────────────
 
+# == PROMPT (git branch via built-in vcs_info, zero deps) =========
 autoload -Uz vcs_info
 precmd() { vcs_info }
 zstyle ':vcs_info:git:*' formats ' (%b)'
 setopt PROMPT_SUBST
 PROMPT='%F{cyan}%n%f%F{white}@%f%F{green}%m%f %F{yellow}%~%f%F{magenta}${vcs_info_msg_0_}%f %F{cyan}âžœ%f  '
 
+# == COMPLETION (cached — rebuilds only once per day) =============
 autoload -Uz compinit
 if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
     compinit
@@ -580,13 +582,18 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
+# == HISTORY ======================================================
 HISTFILE=~/.zsh_history
 HISTSIZE=2000
 SAVEHIST=2000
 setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY
 
+# == OPTIONS ======================================================
 setopt AUTO_CD CORRECT NO_BEEP
 
+# == PLUGINS — lazy loaded after first prompt =====================
+# Plugins source AFTER prompt appears = shell feels instant.
+# Autosuggestions + syntax highlight available from second keystroke.
 _load_plugins() {
     [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
         source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -599,11 +606,13 @@ _load_plugins() {
 }
 precmd_functions+=(_load_plugins)
 
+# == KEY BINDINGS =================================================
 bindkey -e
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 bindkey '^[[3~' delete-char
 
+# == ALIASES ======================================================
 alias l='ls --color=auto'
 alias cl='clear'
 alias ll='ls -alF --color=auto'
@@ -636,6 +645,12 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias zshconfig='nano ~/.zshrc'
 alias reload='source ~/.zshrc && echo "âœ“ .zshrc reloaded"'
+
+# == PYTHON VENV SHORTCUTS ========================================
+# start-venv / sv : create .venv in current dir (if needed) + activate
+# stop-venv  / sx : deactivate current venv
+# venv-info       : show active venv path and python version
+# NOTE: These MUST be functions (not aliases) — `source` cannot run via alias.
 
 start-venv() {
     local venv_dir="${1:-.venv}"
