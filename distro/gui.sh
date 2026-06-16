@@ -890,6 +890,93 @@ HELPSCRIPT
     log_msg "SUCCESS: modded-ubuntu helper installed at $bin_path"
 }
 
+# ─────────────────────────────────────────────
+# APPLY XFCE SETTINGS
+# Writes xfconf XML files so themes, icons, and
+# wallpaper take effect on next VNC/XFCE start.
+# ─────────────────────────────────────────────
+apply_xfce_settings() {
+    echo -e "${R} [${W}-${R}]${C} Applying XFCE theme, icons & wallpaper...${W}"
+    log_msg "STARTING: apply_xfce_settings"
+
+    local theme_name=""
+    local icon_name=""
+    local wallpaper=""
+
+    theme_name=$(find /usr/share/themes -mindepth 1 -maxdepth 1 -type d ! -name 'Bright' ! -name 'Daloa' ! -name 'Emacs' ! -name 'Moheli' ! -name 'Retro' ! -name 'Smoke' 2>/dev/null | head -1 | xargs basename 2>/dev/null)
+    if [[ -d "/usr/share/icons/Flat-Remix-Blue-Dark" ]]; then
+        icon_name="Flat-Remix-Blue-Dark"
+    else
+        icon_name=$(find /usr/share/icons -mindepth 1 -maxdepth 1 -type d ! -name 'LoginIcons' ! -name 'default' ! -name 'hicolor' 2>/dev/null | head -1 | xargs basename 2>/dev/null)
+    fi
+    wallpaper=$(find /usr/share/backgrounds/xfce -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.jpeg' \) 2>/dev/null | head -1)
+
+    log_msg "Detected theme=$theme_name icon=$icon_name wallpaper=$wallpaper"
+
+    write_xfconf_xml() {
+        local target_home="$1"
+        local target_user="$2"
+        local xfconf_dir="$target_home/.config/xfce4/xfconf/xfce-perchannel-xml"
+        mkdir -p "$xfconf_dir"
+
+        if [[ -n "$theme_name" ]]; then
+            cat > "$xfconf_dir/xsettings.xml" << XSETTINGS
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xsettings" version="1.0">
+  <property name="Net" type="empty">
+    <property name="ThemeName" type="string" value="$theme_name"/>
+    <property name="IconThemeName" type="string" value="${icon_name:-Adwaita}"/>
+  </property>
+</channel>
+XSETTINGS
+            log_msg "Wrote xsettings.xml for $target_user (theme=$theme_name, icons=${icon_name:-Adwaita})"
+        fi
+
+        if [[ -n "$wallpaper" ]]; then
+            cat > "$xfconf_dir/xfce4-desktop.xml" << XFDESKTOP
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-desktop" version="1.0">
+  <property name="backdrop" type="empty">
+    <property name="screen0" type="empty">
+      <property name="monitor0" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="$wallpaper"/>
+          <property name="image-style" type="int" value="5"/>
+        </property>
+      </property>
+    </property>
+  </property>
+</channel>
+XFDESKTOP
+            log_msg "Wrote xfce4-desktop.xml for $target_user (wallpaper=$wallpaper)"
+        else
+            log_msg "WARNING: No wallpaper found in /usr/share/backgrounds/xfce/"
+        fi
+
+        if [[ -n "$theme_name" ]]; then
+            cat > "$xfconf_dir/xfwm4.xml" << XFWM4
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfwm4" version="1.0">
+  <property name="general" type="empty">
+    <property name="theme" type="string" value="$theme_name"/>
+  </property>
+</channel>
+XFWM4
+            log_msg "Wrote xfwm4.xml for $target_user (wm-theme=$theme_name)"
+        fi
+
+        [[ "$target_user" != "root" ]] && chown -R "$target_user:$target_user" "$target_home/.config"
+    }
+
+    write_xfconf_xml "/root" "root"
+    if [[ -n "$username" ]] && [[ "$username" != "root" ]] && [[ -d "/home/$username" ]]; then
+        write_xfconf_xml "/home/$username" "$username"
+    fi
+
+    echo -e "${G}✓ XFCE settings applied (theme, icons, wallpaper).${W}"
+    log_msg "SUCCESS: apply_xfce_settings finished"
+}
+
 config() {
     banner
     sound_fix
@@ -943,6 +1030,8 @@ config() {
     echo -e "${R} [${W}-${R}]${C} Purging Unnecessary Files..${W}"
     rem_theme
     rem_icon
+
+    apply_xfce_settings
 
     echo -e "${R} [${W}-${R}]${C} Rebuilding Font Cache..\n${W}"
     run_silent "Rebuilding font cache" fc-cache -fv
