@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-dbus-launch vncserver -geometry 1920x1080 -depth 24 -zliblevel 0 -name modded-ubuntu -xstartup /usr/bin/xfce4-session
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+vncserver -geometry 1920x1080 -depth 24 -zliblevel 0 -name modded-ubuntu -xstartup /usr/bin/startxfce4

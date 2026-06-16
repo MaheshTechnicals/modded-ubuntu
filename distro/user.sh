@@ -42,7 +42,7 @@ login() {
     echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers
 
     # Write ubuntu launcher with user login
-    echo "clear; proot-distro login --user $user ubuntu --bind /dev/null:/proc/sys/kernel/cap_last_last --shared-tmp --fix-low-ports" > "$TERMUX_BIN/ubuntu"
+    echo "clear; proot-distro login --user $user ubuntu --bind /dev/null:/proc/sys/kernel/cap_last_last --shared-tmp --redirect-ports" > "$TERMUX_BIN/ubuntu"
     chmod +x "$TERMUX_BIN/ubuntu"
 
     if [[ -e "$TERMUX_HOME/modded-ubuntu/distro/gui.sh" ]]; then

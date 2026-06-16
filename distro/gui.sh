@@ -119,6 +119,8 @@ note() {
 		 ${G}[-] Type ${C}vncstart${G} to run Vncserver.
 		 ${G}[-] Type ${C}vncstop${G} to stop Vncserver.
 
+		 ${Y}[!] Before first use, set a VNC password: ${C}vncpasswd${W}
+
 		 ${C}Install VNC VIEWER Apk on your Device.
 
 		 ${C}Open VNC VIEWER & Click on + Button.
